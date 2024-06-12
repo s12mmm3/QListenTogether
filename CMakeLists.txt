@@ -54,7 +54,7 @@ set_target_properties(appQListenTogether PROPERTIES
 )
 
 target_link_libraries(appQListenTogether
-    PRIVATE Qt6::Quick
+    PRIVATE Qt6::Quick QCloudMusicApi
 )
 
 include(GNUInstallDirs)
