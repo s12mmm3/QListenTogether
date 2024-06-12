@@ -1,0 +1,3 @@
+[submodule "QCloudMusicApi"]
+	path = QCloudMusicApi
+	url = https://github.com/s12mmm3/QCloudMusicApi.git
