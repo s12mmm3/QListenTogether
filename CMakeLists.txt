@@ -44,6 +44,10 @@ qt_add_qml_module(appQListenTogether
         PlaybackControl.qml
         PlaybackRateControl.qml
         PlaybackSeekControl.qml
+        Playlist.qml
+        QRCode.qml
+        qqr.js
+        LoginPage.qml
 )
 
 # Qt for iOS sets MACOSX_BUNDLE_GUI_IDENTIFIER automatically since Qt 6.1.

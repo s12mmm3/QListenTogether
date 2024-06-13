@@ -3,12 +3,22 @@ import QtQuick.Controls
 import QtQuick.Layouts
 
 import QtMultimedia
+import QtQuick.Dialogs
 
 ApplicationWindow {
+    id: window
     width: 640
     height: 480
     visible: true
     title: qsTr("一起听 - 主机模式")
+    MessageDialog {
+        id: messageDialog
+    }
+
+    function alert(text) {
+        messageDialog.text = text
+        messageDialog.open()
+    }
     function invoke(member, arg) {
         return {
             "data": $apihelper.invoke(member, arg).body
@@ -25,8 +35,7 @@ ApplicationWindow {
     }
 
     Component.onCompleted: {
-        $apihelper.setFilterRules("*.debug=false")
-        loadPlaylist()
+        // $apihelper.setFilterRules("*.debug=false")
     }
     property string message: '请点击获取登录状态'
     property alias account: account
@@ -48,7 +57,7 @@ ApplicationWindow {
     property alias playlistInfo: playlistInfo
     QtObject {
         id: playlistInfo
-        property var playlistId: "8360528574"
+        property var playlistId: ""
         property var playlistName: '未获取'
         property var playlistTrackIds: []
         property var playlistTracks: []
@@ -175,55 +184,81 @@ ApplicationWindow {
                            })
         console.log(res)
     }
-    ListView {
-        id: listView
-        anchors.fill: parent
-        anchors.leftMargin: 5
-        anchors.rightMargin: 5
-        clip: true
-        spacing: 5
-        model: playlistInfo.playlistTracks
+    LoginPage {
+        id: loginPage
+        width: Math.min(parent.width, parent.height)
+        height: width
+        visible: false
+        anchors.centerIn: parent
+    }
 
-        delegate: ItemDelegate {
-            width: listView.width
-            property var track: modelData
-            onClicked: function() {
-                gotoTrack(track.id)
+    header: Column {
+        width: parent.width
+        Button {
+            text: "如果没登录,请先登录"
+            onClicked: {
+                loginPage.open()
             }
+        }
 
-            contentItem: RowLayout {
-                spacing: 5
-                width: parent.width
-                Image {
-                    Layout.preferredWidth: 80
-                    Layout.preferredHeight: Layout.preferredWidth
-                    source: track.al.picUrl
-                }
-                Column {
-                    Layout.fillWidth: true
-                    Layout.alignment: Qt.AlignVCenter
-                    Text {
-                        text: track.name
-                        width: parent.width
-                        elide: Text.ElideRight
+        Text {
+            text: `消息: ${message}`
+        }
+
+        Button {
+            text: "获取登录状态"
+            visible: !account.login
+            onClicked: login()
+        }
+
+        Text {
+            text: `您的当前登录账号为: ${account.nickname}`
+        }
+
+        RowLayout {
+            anchors.horizontalCenter: parent.horizontalCenter
+            width: parent.width / 2
+            Text {
+                text: "歌单ID:"
+            }
+            Rectangle {
+                Layout.preferredHeight: parent.height
+                Layout.fillWidth: true
+                TextInput {
+                    anchors.fill: parent
+                    text: "8360528574"
+                    onTextChanged: {
+                        playlistInfo.playlistId = text
                     }
-                    Text {
-                        text: {
-                            return modelData["ar"].map(item => item.name).join("/")
-                        }
-                        width: parent.width
-                        elide: Text.ElideRight
-                        color: "#708090"
-                    }
-                    Text {
-                        text: modelData["al"]["name"]
-                        color: "#708090"
-                        width: parent.width
-                        elide: Text.ElideRight
+                    Component.onCompleted: {
+                        playlistInfo.playlistId = text
                     }
                 }
             }
         }
+        RowLayout {
+            anchors.horizontalCenter: parent.horizontalCenter
+            width: parent.width / 2
+            Button {
+                text: "加载歌单到播放列表"
+                onClicked: {
+                    loadPlaylist()
+                }
+            }
+            Text {
+                Layout.fillWidth: true
+                text: playlistInfo.playlistName
+            }
+        }
+    }
+
+    Playlist {
+        id: listView
+        anchors.fill: parent
+        anchors.leftMargin: 5
+        anchors.rightMargin: 5
+        model: playlistInfo.playlistTracks
+        onClicked: function(id) { gotoTrack(id) }
     }
     footer: PlaybackControl {
         id: playbackControl
