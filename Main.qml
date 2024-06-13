@@ -34,8 +34,20 @@ ApplicationWindow {
         onErrorOccurred: { mediaErrorText.text = mediaPlayer.errorString; mediaError.open() }
     }
 
+    Connections {
+        target: mediaPlayer
+        function onPlaybackStateChanged() {
+            if (mediaPlayer.playbackState == MediaPlayer.PlayingState) {
+                playTrack()
+            }
+            else if (mediaPlayer.playbackState == MediaPlayer.PausedState) {
+                pauseTrack()
+            }
+        }
+    }
+
     Component.onCompleted: {
-        // $apihelper.setFilterRules("*.debug=false")
+        $apihelper.setFilterRules("*.debug=false")
     }
     property string message: '请点击获取登录状态'
     property alias account: account
@@ -79,7 +91,7 @@ ApplicationWindow {
 
                            })
         console.info(JSON.stringify(res, null, 2))
-        if (res.data.data.code !== 200) {
+        if (res.data.data.code != 200) {
             alert('请先使用登录 API 登录到网易云音乐')
         } else {
             this.account.userId = res.data.data.profile.userId
@@ -118,6 +130,48 @@ ApplicationWindow {
                                 })
             console.log(resa)
             this.playlistInfo.playlistTracks = resa.data.songs
+        }
+    }
+
+    function createRoom() {
+        const res = invoke("listentogether_room_create", {})
+        console.log(res)
+        if (res.data.code != 200) {
+            this.message = '创建房间出现问题: ' + res.data.message
+        } else {
+            this.message = '创建房间成功: ' + res.data.data.roomInfo.roomId
+            this.roomInfo.inviterId = this.account.userId
+            this.roomInfo.roomId = res.data.data.roomInfo.roomId
+            const res2 = invoke("listentogether_room_check",
+                                {
+                                    "roomId": this.roomInfo.roomId,
+                                    // "cookie": localStorage.getItem('cookie'),
+                                })
+            console.log(res2)
+        }
+    }
+
+    function refreshRoom() {
+        const res = invoke("listentogether_status", {})
+        console.log(res)
+        if (res.data.code != 200 || !res.data.data.inRoom) {
+            this.message = '房间状态获取失败, 可能退出了房间'
+        } else {
+            this.roomInfo.roomUsers = res.data.data.roomInfo.roomUsers
+        }
+    }
+
+    function closeRoom() {
+        const res = invoke("listentogether_end",
+                           {
+                               "roomId": this.roomInfo.roomId
+                           })
+        console.log(res)
+        if (res.data.code != 200 || !res.data.data.success) {
+            this.message = '房间关闭失败'
+        } else {
+            this.message = '房间关闭成功'
+            this.roomInfo.roomId = null
         }
     }
 
@@ -168,6 +222,18 @@ ApplicationWindow {
         mediaPlayer.play()
     }
 
+    function playTrack() {
+        this.playCommand('PLAY')
+    }
+
+    function pauseTrack() {
+        this.playCommand('PAUSE')
+    }
+
+    function seekTrack() {
+        this.playCommand('seek')
+    }
+
     function playCommand(action) {
         const res = invoke("listentogether_play_command",
                            {
@@ -215,6 +281,77 @@ ApplicationWindow {
             text: `您的当前登录账号为: ${account.nickname}`
         }
 
+        Button {
+            text: "创建房间"
+            visible: !roomInfo.roomId
+            onClicked: {
+                createRoom()
+            }
+        }
+
+        Row {
+            visible: roomInfo.roomId
+            Text {
+                text: "分享链接为: "
+            }
+
+            TextInput {
+                text: `https://st.music.163.com/listen-together/share/?songId=1372188635&roomId=${roomInfo.roomId}&inviterId=${roomInfo.inviterId}`
+            }
+        }
+
+        Button {
+            text: "刷新房间状态"
+            onClicked: {
+                refreshRoom()
+            }
+        }
+
+        Text {
+            text: "在线用户: "
+        }
+        Repeater {
+            model: roomInfo.roomUsers
+            Row {
+                property var user: modelData
+                Image {
+                    width: 80
+                    height: width
+                    source: user.avatarUrl
+                }
+                Text {
+                    anchors.verticalCenter: parent.verticalCenter
+                    text: user.nickname
+                }
+            }
+        }
+
+        Button {
+            text: "关闭房间"
+            visible: roomInfo.roomId
+            onClicked: {
+                closeRoom()
+            }
+        }
+
+        Button {
+            text: "同步进度"
+            onClicked: {
+                seekTrack()
+            }
+        }
+
+        TabBar {
+            id: bar
+            width: parent.width
+            Repeater {
+                model: [ "主机模式", "从机模式" ]
+                TabButton {
+                    text: modelData
+                }
+            }
+        }
+
         RowLayout {
             anchors.horizontalCenter: parent.horizontalCenter
             width: parent.width / 2
@@ -252,14 +389,26 @@ ApplicationWindow {
         }
     }
 
-    Playlist {
-        id: listView
+    StackLayout {
         anchors.fill: parent
-        anchors.leftMargin: 5
-        anchors.rightMargin: 5
-        model: playlistInfo.playlistTracks
-        onClicked: function(id) { gotoTrack(id) }
+        currentIndex: bar.currentIndex
+        Playlist {
+            id: listView
+            anchors.fill: parent
+            anchors.leftMargin: 5
+            anchors.rightMargin: 5
+            model: playlistInfo.playlistTracks
+            onClicked: function(id) { gotoTrack(id) }
+        }
+        Item {
+            id: discoverTab
+        }
+        Item {
+            id: activityTab
+        }
     }
+
+
     footer: PlaybackControl {
         id: playbackControl
 
