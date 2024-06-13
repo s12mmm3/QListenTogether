@@ -44,7 +44,6 @@ Page {
         }
 
         RowLayout {
-            anchors.horizontalCenter: parent.horizontalCenter
             width: parent.width / 2
             Text {
                 text: "歌单ID:"
@@ -66,7 +65,6 @@ Page {
         }
 
         RowLayout {
-            anchors.horizontalCenter: parent.horizontalCenter
             width: parent.width / 2
             Button {
                 text: "加载歌单到播放列表"

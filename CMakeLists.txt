@@ -24,7 +24,7 @@ endif()
 
 add_subdirectory(QCloudMusicApi)
 
-find_package(Qt6 6.5 REQUIRED COMPONENTS Quick)
+find_package(Qt6 6.5 REQUIRED COMPONENTS Quick QuickControls2)
 
 qt_standard_project_setup(REQUIRES 6.5)
 
@@ -62,7 +62,7 @@ set_target_properties(appQListenTogether PROPERTIES
 )
 
 target_link_libraries(appQListenTogether
-    PRIVATE Qt6::Quick QCloudMusicApi
+    PRIVATE Qt6::Quick Qt6::QuickControls2 QCloudMusicApi
 )
 
 include(GNUInstallDirs)
