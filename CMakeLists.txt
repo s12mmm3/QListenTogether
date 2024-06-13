@@ -40,6 +40,10 @@ qt_add_qml_module(appQListenTogether
     VERSION 1.0
     QML_FILES
         Main.qml
+        AudioControl.qml
+        PlaybackControl.qml
+        PlaybackRateControl.qml
+        PlaybackSeekControl.qml
 )
 
 # Qt for iOS sets MACOSX_BUNDLE_GUI_IDENTIFIER automatically since Qt 6.1.

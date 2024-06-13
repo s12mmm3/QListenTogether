@@ -4,7 +4,7 @@ import QtQuick.Layouts
 
 import QtMultimedia
 
-Window {
+ApplicationWindow {
     width: 640
     height: 480
     visible: true
@@ -15,36 +15,55 @@ Window {
         }
     }
     MediaPlayer {
-        id: player
-        audioOutput: AudioOutput {}
+        id: mediaPlayer
+        audioOutput: AudioOutput {
+            id: audio
+            muted: playbackControl.muted
+            volume: playbackControl.volume
+        }
+        onErrorOccurred: { mediaErrorText.text = mediaPlayer.errorString; mediaError.open() }
     }
 
     Component.onCompleted: {
+        $apihelper.setFilterRules("*.debug=false")
         loadPlaylist()
     }
-    property var message: '请点击获取登录状态'
-    property var account: {
-        "login": false,
-        "userId": 0,
-        "nickname": '未登录',
+    property string message: '请点击获取登录状态'
+    property alias account: account
+    QtObject {
+        id: account
+        property var login: false
+        property var userId: 0
+        property var nickname: '未登录'
     }
-    property var roomInfo: {
-        "roomId": null,
-        "inviterId": 0,
-        "roomUsers": [],
+
+    property alias roomInfo: roomInfo
+    QtObject {
+        id: roomInfo
+        property var roomId: null
+        property var inviterId: 0
+        property var roomUsers: []
     }
-    property var playlistInfo: {
-        "playlistId": "8360528574",
-        "playlistName": '未获取',
-        "playlistTrackIds": [],
-        "playlistTracks": []
+
+    property alias playlistInfo: playlistInfo
+    QtObject {
+        id: playlistInfo
+        property var playlistId: "8360528574"
+        property var playlistName: '未获取'
+        property var playlistTrackIds: []
+        property var playlistTracks: []
     }
-    property var playingInfo: {
-        "trackId": 0,
-        "status": 'PLAY',
-        "progress": 1,
+
+    property alias playingInfo: playingInfo
+    QtObject {
+        id: playingInfo
+        property var trackId: 0
+        property var status: 'PLAY'
+        property var progress: 1
     }
+
     property int clientSeq: 1
+
     function login() {
         const res = invoke("login_status",
                            {
@@ -102,8 +121,6 @@ Window {
         this.playlistInfo.playlistTrackIds = res.data.playlist.trackIds
         .map((track) => track.id)
         .join(',')
-        console.info(this.playlistInfo.playlistName)
-        console.info(this.playlistInfo.playlistTrackIds)
 
         const resa = invoke("song_detail",
                             {
@@ -137,9 +154,9 @@ Window {
                                "id": trackId,
                                "level": 'hires',
                            })
-        player.source =
+        mediaPlayer.source =
                 res.data.data[0].url
-        player.play()
+        mediaPlayer.play()
     }
 
     function playCommand(action) {
@@ -147,7 +164,7 @@ Window {
                            {
                                "roomId": this.roomInfo.roomId,
                                "progress": Math.floor(
-                                               player.duration,
+                                               mediaPlayer.duration,
                                                ),
                                "commandType": action,
                                "formerSongId": '-1',
@@ -207,5 +224,10 @@ Window {
                 }
             }
         }
+    }
+    footer: PlaybackControl {
+        id: playbackControl
+
+        mediaPlayer: mediaPlayer
     }
 }
