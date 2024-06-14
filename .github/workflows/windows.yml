@@ -20,7 +20,7 @@ jobs:
           - qt_version: 6.6.2
             qt_arch: win64_msvc2019_64
             arch: x64
-            modules: 'qthttpserver qtwebsockets'
+            modules: 'qthttpserver qtwebsockets qtmultimedia'
     env:
       BUILD_TYPE: Release
       BUILD_PATH: build
