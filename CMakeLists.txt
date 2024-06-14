@@ -30,9 +30,21 @@ qt_standard_project_setup(REQUIRES 6.5)
 
 FILE(GLOB HEADERS ./*.h)
 FILE(GLOB SOURCES ./*.cpp)
-qt_add_executable(QListenTogether
+qt_add_executable(${PROJECT_NAME}
     ${HEADERS}
     ${SOURCES}
+)
+
+set(resource_files
+    "Mute_Icon.svg"
+    "Speaker_Icon.svg"
+)
+
+qt_add_resources(${PROJECT_NAME} "${PROJECT_NAME}"
+    PREFIX
+        "/"
+    FILES
+        ${resource_files}
 )
 
 set_source_files_properties(qqr.js/QRCode.qml PROPERTIES
@@ -43,8 +55,8 @@ set_source_files_properties(qqr.js/qqr.js PROPERTIES
     QT_RESOURCE_ALIAS qqr.js
 )
 
-qt_add_qml_module(QListenTogether
-    URI QListenTogether
+qt_add_qml_module(${PROJECT_NAME}
+    URI ${PROJECT_NAME}
     VERSION 1.0
     QML_FILES
         Main.qml
@@ -61,20 +73,20 @@ qt_add_qml_module(QListenTogether
 # Qt for iOS sets MACOSX_BUNDLE_GUI_IDENTIFIER automatically since Qt 6.1.
 # If you are developing for iOS or macOS you should consider setting an
 # explicit, fixed bundle identifier manually though.
-set_target_properties(QListenTogether PROPERTIES
-#    MACOSX_BUNDLE_GUI_IDENTIFIER com.example.QListenTogether
+set_target_properties(${PROJECT_NAME} PROPERTIES
+#    MACOSX_BUNDLE_GUI_IDENTIFIER com.example.${PROJECT_NAME}
     MACOSX_BUNDLE_BUNDLE_VERSION ${PROJECT_VERSION}
     MACOSX_BUNDLE_SHORT_VERSION_STRING ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
     MACOSX_BUNDLE TRUE
     WIN32_EXECUTABLE TRUE
 )
 
-target_link_libraries(QListenTogether
+target_link_libraries(${PROJECT_NAME}
     PRIVATE Qt6::Quick Qt6::QuickControls2 QCloudMusicApi
 )
 
 include(GNUInstallDirs)
-install(TARGETS QListenTogether
+install(TARGETS ${PROJECT_NAME}
     BUNDLE DESTINATION .
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
