@@ -10,9 +10,15 @@ Popup {
     QRCode {
         anchors.fill: parent
         value: root.url
+        visible: value != ""
+    }
+    function init() {
+        url = ""
+        key = ""
     }
 
     onOpened: {
+        init()
         login()
         timer.start()
     }

@@ -324,7 +324,8 @@ ApplicationWindow {
         currentIndex: bar.currentIndex
         Playlist {
             id: listView
-            anchors.fill: parent
+            Layout.fillWidth: true
+            Layout.fillHeight: true
             anchors.leftMargin: 5
             anchors.rightMargin: 5
             model: playlistInfo.playlistTracks
