@@ -8,74 +8,9 @@ Page {
     signal clicked(id: string)
     header: Column {
         width: parent.width
-
-        Button {
-            text: "创建房间"
-            visible: !roomInfo.roomId
-            onClicked: {
-                createRoom()
-            }
-        }
-
-        Row {
-            visible: roomInfo.roomId
-            Text {
-                text: "分享链接为: "
-            }
-
-            TextInput {
-                text: `https://st.music.163.com/listen-together/share/?songId=1372188635&roomId=${roomInfo.roomId}&inviterId=${roomInfo.inviterId}`
-            }
-        }
-
-        Button {
-            text: "关闭房间"
-            visible: roomInfo.roomId
-            onClicked: {
-                closeRoom()
-            }
-        }
-
-        Button {
-            text: "同步进度"
-            onClicked: {
-                seekTrack()
-            }
-        }
-
-        RowLayout {
-            width: parent.width / 2
-            Text {
-                text: "歌单ID:"
-            }
-            Rectangle {
-                Layout.preferredHeight: parent.height
-                Layout.fillWidth: true
-                TextInput {
-                    anchors.fill: parent
-                    text: "8360528574"
-                    onTextChanged: {
-                        playlistInfo.playlistId = text
-                    }
-                    Component.onCompleted: {
-                        playlistInfo.playlistId = text
-                    }
-                }
-            }
-        }
-
-        RowLayout {
-            width: parent.width / 2
-            Button {
-                text: "加载歌单到播放列表"
-                onClicked: {
-                    loadPlaylist()
-                }
-            }
-            Text {
-                Layout.fillWidth: true
-                text: playlistInfo.playlistName
-            }
+        Text {
+            Layout.fillWidth: true
+            text: playlistInfo.playlistName
         }
     }
 

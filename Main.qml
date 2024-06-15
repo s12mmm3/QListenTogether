@@ -305,21 +305,102 @@ ApplicationWindow {
             }
         }
 
-        TabBar {
-            id: bar
-            width: parent.width
-            Repeater {
-                model: [ "主机模式", "从机模式" ]
-                TabButton {
-                    text: modelData
-                }
+        Button {
+            text: "同步进度"
+            onClicked: {
+                seekTrack()
+            }
+        }
+
+        Row {
+            visible: roomInfo.roomId
+            Text {
+                text: "分享链接为: "
+            }
+
+            TextInput {
+                text: `https://st.music.163.com/listen-together/share/?songId=1372188635&roomId=${roomInfo.roomId}&inviterId=${roomInfo.inviterId}`
+            }
+        }
+
+        ButtonGroup { buttons: radioButtonColumn.children }
+        Row {
+            id: radioButtonColumn
+            RadioButton {
+                id: hostRadioButton
+                checked: true
+                text: "主机模式"
+            }
+            RadioButton {
+                id: slaveRadioButton
+                text: "从机模式"
             }
         }
     }
-
-    StackLayout {
+    ColumnLayout {
         anchors.fill: parent
-        currentIndex: bar.currentIndex
+        Column {
+            // 主机模式
+            visible: hostRadioButton.checked
+            Button {
+                text: "创建房间"
+                visible: !roomInfo.roomId
+                onClicked: {
+                    createRoom()
+                }
+            }
+
+            Button {
+                text: "关闭房间"
+                visible: roomInfo.roomId
+                onClicked: {
+                    closeRoom()
+                }
+            }
+
+            TextField {
+                placeholderText: "歌单ID:"
+                text: "8360528574"
+                onTextChanged: {
+                    playlistInfo.playlistId = text
+                }
+                Component.onCompleted: {
+                    playlistInfo.playlistId = text
+                }
+            }
+
+            Button {
+                text: "加载歌单到播放列表"
+                onClicked: {
+                    loadPlaylist()
+                }
+            }
+        }
+
+        Column {
+            // 从机模式
+            visible: slaveRadioButton.checked
+            Text {
+                text: "分享链接为: "
+            }
+            TextField {
+                placeholderText: "房间ID: "
+                onTextChanged: {
+                    roomInfo.roomId = text
+                }
+            }
+            TextField {
+                placeholderText: "邀请者 ID: "
+                onTextChanged: {
+                    roomInfo.inviterId = text
+                }
+            }
+            Button {
+                text: "点击加入"
+                onClicked: joinRoom()
+            }
+        }
+
         Playlist {
             Layout.fillWidth: true
             Layout.fillHeight: true
@@ -327,9 +408,6 @@ ApplicationWindow {
             Layout.rightMargin: 5
             model: playlistInfo.playlistTracks
             onClicked: function(id) { gotoTrack(id) }
-        }
-        Item {
-            id: discoverTab
         }
     }
 
