@@ -16,6 +16,7 @@ int main(int argc, char *argv[])
     QQmlApplicationEngine engine;
 
     ApiHelper apihelper;
+    apihelper.setFilterRules("QCloudMusicApi.debug=false");
     engine.rootContext()->setContextProperty("$apihelper", &apihelper);
 
     QObject::connect(

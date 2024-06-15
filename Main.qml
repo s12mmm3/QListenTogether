@@ -7,23 +7,26 @@ import QtQuick.Dialogs
 
 ApplicationWindow {
     id: window
-    width: 640
-    height: 480
+    width: 800
+    height: 800
     visible: true
-    title: qsTr("一起听 - 主机模式")
-    MessageDialog {
-        id: messageDialog
-    }
+    title: qsTr("一起听")
 
     function alert(text) {
         messageDialog.text = text
         messageDialog.open()
     }
+
     function invoke(member, arg) {
         return {
             "data": $apihelper.invoke(member, arg).body
         }
     }
+
+    MessageDialog {
+        id: messageDialog
+    }
+
     MediaPlayer {
         id: mediaPlayer
         audioOutput: AudioOutput {
@@ -46,9 +49,6 @@ ApplicationWindow {
         }
     }
 
-    Component.onCompleted: {
-        $apihelper.setFilterRules("QCloudMusicApi.debug=false")
-    }
     property string message: '请点击获取登录状态'
     property alias account: account
     QtObject {
