@@ -47,7 +47,7 @@ ApplicationWindow {
     }
 
     Component.onCompleted: {
-        $apihelper.setFilterRules("*.debug=false")
+        $apihelper.setFilterRules("QCloudMusicApi.debug=false")
     }
     property string message: '请点击获取登录状态'
     property alias account: account
