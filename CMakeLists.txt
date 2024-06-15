@@ -8,6 +8,7 @@ option(MUSICAPI_TEST "Build Test" OFF)
 option(MUSICAPI_SERVER "Build ApiServer" OFF)
 option(MUSICAPI_SETOUTPUTPATH "Set default output path" OFF)
 
+set(BUILD_SHARED_LIBS OFF)
 if(NOT ANDROID AND NOT IOS)
     # 设置安装前缀为二进制目录
     set(CMAKE_INSTALL_PREFIX ${CMAKE_BINARY_DIR})
