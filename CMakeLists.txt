@@ -88,6 +88,10 @@ target_link_libraries(${PROJECT_NAME}
     PRIVATE Qt6::Quick Qt6::QuickControls2 QCloudMusicApi
 )
 
+target_compile_definitions(${PROJECT_NAME} PRIVATE
+    PROJECT_NAME="${PROJECT_NAME}"
+)
+
 include(GNUInstallDirs)
 install(TARGETS ${PROJECT_NAME}
     BUNDLE DESTINATION .

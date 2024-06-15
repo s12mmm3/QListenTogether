@@ -204,7 +204,6 @@ ApplicationWindow {
                                 })
             console.log(resb)
         }
-        listView.model = playlistInfo.playlistTracks
     }
 
     function gotoTrack(trackId) {
@@ -253,7 +252,6 @@ ApplicationWindow {
     LoginPage {
         id: loginPage
         width: Math.min(parent.width, parent.height)
-        height: width
         visible: false
         anchors.centerIn: parent
     }
@@ -323,19 +321,15 @@ ApplicationWindow {
         anchors.fill: parent
         currentIndex: bar.currentIndex
         Playlist {
-            id: listView
             Layout.fillWidth: true
             Layout.fillHeight: true
-            anchors.leftMargin: 5
-            anchors.rightMargin: 5
+            Layout.leftMargin: 5
+            Layout.rightMargin: 5
             model: playlistInfo.playlistTracks
             onClicked: function(id) { gotoTrack(id) }
         }
         Item {
             id: discoverTab
-        }
-        Item {
-            id: activityTab
         }
     }
 

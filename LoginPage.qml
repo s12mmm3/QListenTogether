@@ -1,17 +1,49 @@
 import QtQuick
 import QtQuick.Controls
+import QtQuick.Layouts
 
 Popup {
     property var url: ""
     property var key: ""
     id: root
-    width: 320
-    height: 320
-    QRCode {
-        anchors.fill: parent
-        value: root.url
-        visible: value != ""
+    Column {
+        width: parent.width
+        spacing: 5
+        QRCode {
+            width: parent.width
+            height: width
+            value: root.url
+            visible: value != ""
+        }
+        TextField {
+            id: phone
+            placeholderText: "账号"
+            width: parent.width
+        }
+        TextField {
+            id: password
+            placeholderText: "密码"
+            width: parent.width
+        }
+        Button {
+            text: "登录"
+            onClicked: {
+                const res = invoke("login_cellphone",
+                                   {
+                                       "password": password.text,
+                                       "phone": phone.text
+                                   })
+                if (res.data.cookie) {
+                    window.alert('授权登录成功')
+                    timer.stop()
+                }
+                else {
+                    window.alert('登录失败，请尝试重新登录或扫码')
+                }
+            }
+        }
     }
+
     function init() {
         url = ""
         key = ""
