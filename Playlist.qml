@@ -31,6 +31,7 @@ Page {
                 spacing: 5
                 width: parent.width
                 Image {
+                    // 专辑图片
                     Layout.preferredWidth: 80
                     Layout.preferredHeight: Layout.preferredWidth
                     source: track.al.picUrl
@@ -39,11 +40,13 @@ Page {
                     Layout.fillWidth: true
                     Layout.alignment: Qt.AlignVCenter
                     Text {
+                        // 歌曲名称
                         text: track.name
                         width: parent.width
                         elide: Text.ElideRight
                     }
                     Text {
+                        // 歌手名称
                         text: {
                             return modelData["ar"].map(item => item.name).join("/")
                         }
@@ -52,6 +55,7 @@ Page {
                         color: "#708090"
                     }
                     Text {
+                        // 专辑名称
                         text: modelData["al"]["name"]
                         color: "#708090"
                         width: parent.width

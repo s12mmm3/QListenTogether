@@ -45,8 +45,8 @@ Popup {
     }
 
     function init() {
-        url = ""
-        key = ""
+        root.url = ""
+        root.key = ""
     }
 
     onOpened: {
@@ -85,8 +85,8 @@ Popup {
                             })
         root.url = res2.data.data.qrurl
         root.key = key
-
     }
+
     function checkStatus(key) {
         const res = invoke("login_qr_check",
                            {

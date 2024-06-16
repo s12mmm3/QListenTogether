@@ -380,9 +380,6 @@ ApplicationWindow {
         Column {
             // 从机模式
             visible: slaveRadioButton.checked
-            Text {
-                text: "分享链接为: "
-            }
             TextField {
                 placeholderText: "房间ID: "
                 onTextChanged: {
