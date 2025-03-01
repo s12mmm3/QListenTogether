@@ -82,7 +82,7 @@ jobs:
       # 上传artifacts          
       - uses: actions/upload-artifact@v4
         with:
-          name: ${{ env.archiveName }}
+          name: ${{ env.archiveName }}.zip
           path: ${{ github.workspace }}/${{ env.BUILD_PATH }}/${{ env.BUILD_TYPE }}
       # 打包 
       - name: Package
@@ -93,7 +93,7 @@ jobs:
           path: ${{ github.workspace }}/${{ env.BUILD_PATH }}/${{ env.BUILD_TYPE }}
         run: |
           # 打包zip
-          Compress-Archive -Path ${{ env.path }}/* ${{ env.archiveName }}
+          Compress-Archive -Path ${{ env.path }}/* ${{ env.archiveName }}.zip
           # tree /F
       # tag 上传Release
       - name: Upload Release
@@ -101,7 +101,7 @@ jobs:
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: ${{ github.workspace }}/${{ env.archiveName }}
+          file: ${{ github.workspace }}/${{ env.archiveName }}.zip
           # asset_name: ${{ env.archiveName }}
           tag: ${{ github.ref }}
           overwrite: true 
