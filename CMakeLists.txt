@@ -27,7 +27,7 @@ endif()
 
 add_subdirectory(QCloudMusicApi)
 
-find_package(Qt6 6.5 REQUIRED COMPONENTS Quick QuickControls2)
+find_package(Qt6 6.5 REQUIRED COMPONENTS Quick QuickControls2 Network)
 
 qt_standard_project_setup(REQUIRES 6.5)
 
@@ -84,8 +84,23 @@ set_target_properties(${PROJECT_NAME} PROPERTIES
     WIN32_EXECUTABLE TRUE
 )
 
+if (ANDROID)
+    include(FetchContent)
+    FetchContent_Declare(
+        android_openssl
+        DOWNLOAD_EXTRACT_TIMESTAMP true
+        URL https://github.com/KDAB/android_openssl/archive/refs/heads/master.zip
+        )
+    FetchContent_MakeAvailable(android_openssl)
+    include(${android_openssl_SOURCE_DIR}/android_openssl.cmake)
+
+    add_android_openssl_libraries(${PROJECT_NAME})
+else()
+
+endif()
+
 target_link_libraries(${PROJECT_NAME}
-    PRIVATE Qt6::Quick Qt6::QuickControls2 QCloudMusicApi
+    PRIVATE Qt6::Quick Qt6::QuickControls2 Qt6::Network QCloudMusicApi
 )
 
 target_compile_definitions(${PROJECT_NAME} PRIVATE
