@@ -18,7 +18,7 @@ set(MUSICAPI_SETOUTPUTPATH OFF)
 
 add_subdirectory(QCloudMusicApi)
 
-find_package(Qt6 6.5 REQUIRED COMPONENTS Quick QuickControls2 Network)
+find_package(Qt6 6.5 REQUIRED COMPONENTS Multimedia Quick QuickControls2 Network)
 
 qt_standard_project_setup(REQUIRES 6.5)
 
@@ -98,6 +98,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
     Qt6::Quick
     Qt6::QuickControls2
     Qt6::Network
+    Qt6::Multimedia
     QCloudMusicApi
 )
 

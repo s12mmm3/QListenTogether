@@ -8,7 +8,7 @@
 
 int main(int argc, char *argv[])
 {
-    qSetMessagePattern("%{time yyyy-MM-dd hh:mm:ss.zzz} : %{pid} : %{category} : %{type} : %{line} : %{function} : %{message}");
+    qSetMessagePattern("%{time yyyy-MM-dd hh:mm:ss.zzz} : %{threadid} : %{category} : %{type} : %{line} : %{function} : %{message}");
     QGuiApplication app(argc, argv);
 
     QQuickStyle::setStyle("Material");
