@@ -1,0 +1,180 @@
+name: Android
+on: 
+  # push代码时触发workflow
+  push:
+    paths:
+      - '**'
+  pull_request:
+    paths:
+      - '**'
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-24.04
+    strategy:
+      # 矩阵配置
+      matrix:
+        include:
+          # 6.8.2
+          - qt_version: 6.8.2
+            qt_arch: linux_gcc_64
+            modules: 'qthttpserver qtwebsockets'
+            cross_qt_arch: 'android_arm64_v8a qtmultimedia'
+          - qt_version: 6.8.2
+            qt_arch: linux_gcc_64
+            modules: 'qthttpserver qtwebsockets qtmultimedia'
+            cross_qt_arch: 'android_armv7'
+          - qt_version: 6.8.2
+            qt_arch: linux_gcc_64
+            modules: 'qthttpserver qtwebsockets qtmultimedia'
+            cross_qt_arch: 'android_x86'
+          - qt_version: 6.8.2
+            qt_arch: linux_gcc_64
+            modules: 'qthttpserver qtwebsockets qtmultimedia'
+            cross_qt_arch: 'android_x86_64'
+    env:
+      Repository_Name: 'QListenTogether'
+      BUILD_TYPE: Release
+      BUILD_PATH: build
+      assume: --release
+      qt_target: 'desktop'
+      qt_host: 'linux'
+    # 步骤
+    steps:
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential ninja-build openjdk-17-jdk
+          echo "JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64/" >> $GITHUB_ENV
+          # dpkg-query -L  openjdk-17-jdk-headless
+
+      # 拉取代码
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          submodules: 'recursive'
+
+      # 安装Qt
+      - name: Install Qt native version (the one provided by aqt doesn't seem to work)
+        if: 'true'
+        # 使用外部action。这个action专门用来安装Qt
+        uses: jurplel/install-qt-action@v4
+        with:
+          version: ${{ matrix.qt_version }}
+          host: ${{ env.qt_host }}
+          target: ${{ env.qt_target }}
+          arch: ${{ matrix.qt_arch }}
+          dir: '${{github.workspace}}/qt'
+          install-deps: 'true'
+          cache: 'true'
+          aqtversion: '==3.1.*'
+          modules: ${{ matrix.modules }}
+          # tools: ${{ matrix.tools }}
+
+      - name: Set QT_HOST_ROOT_DIR
+        run: echo "QT_HOST_ROOT_DIR=${QT_ROOT_DIR}" >> "$GITHUB_ENV"
+      
+      - name: Install Qt crosscompile target version
+        uses: jurplel/install-qt-action@v4
+        with:
+          aqtversion: '==3.1.*'
+          version: ${{ matrix.qt_version }}
+          host: ${{ env.qt_host }}
+          target: android
+          arch: ${{ matrix.cross_qt_arch }}
+          dir: '${{github.workspace}}/qt'
+          install-deps: 'true'
+          modules: ${{ matrix.modules }}
+          # tools: ${{ matrix.tools }}
+          cache: true
+
+      - name: Make qt cross binaries executable
+        run: |
+          chmod u+x ${QT_ROOT_DIR}/bin/*
+
+      - name: Set reusable strings
+        shell: bash
+        run: |
+          BUILD_DIR="${{ github.workspace }}/build"
+          echo "BUILD_DIR=$BUILD_DIR" >> $GITHUB_ENV
+        
+          echo "APK_DIR=$BUILD_DIR/android-build/build/outputs/apk/" >> $GITHUB_ENV
+          echo "ANDROID_BUILD_DIR=$BUILD_DIR/android-build/" >> $GITHUB_ENV
+          echo "DEPLOYMENT_SETTINGS=$BUILD_DIR/android-${{ env.Repository_Name }}-deployment-settings.json" >> $GITHUB_ENV
+
+      - name: CMake Build
+        id: build
+        env:
+          CMAKE_PREFIX_PATH: ${{env.QT_ROOT_DIR}}/lib/cmake
+        run: >
+          ${QT_ROOT_DIR}/bin/qt-cmake
+          -G Ninja
+          -B $BUILD_DIR
+          -DQT_HOST_PATH=${QT_HOST_ROOT_DIR}
+          -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }}
+          -S ${{ github.workspace }}
+
+      - name: Build
+        run: cmake --build $BUILD_DIR
+
+
+      - name: Find deployment-settings.json
+        run: find -iname "*deployment-settings.json"
+
+      - name: Signing Android package with common key
+        env: 
+          secret_test: ${{ secrets.KEYSTOREPASSWORD }}
+        if: env.secret_test != ''
+        run: |
+          echo ${{ secrets.SIGNINGKEYBASE64 }} > release.keystore.base64
+          base64 -d release.keystore.base64 > release.keystore
+          $QT_HOST_ROOT_DIR/bin/androiddeployqt --input $DEPLOYMENT_SETTINGS --output $ANDROID_BUILD_DIR --android-platform android-35 --gradle --release --sign release.keystore alpinemaps --storepass ${{ secrets.KEYSTOREPASSWORD }}
+          
+      - name: Signing Android packages with generated key
+        env: 
+          secret_test: ${{ secrets.KEYSTOREPASSWORD }}
+        if: env.secret_test == ''
+        run: |
+          keytool -genkey -v -keystore release.keystore -alias alpinemaps -keyalg RSA -sigalg SHA1withRSA -keysize 2048 -validity 10000 -keypass asdfasdf -storepass asdfasdf -dname "CN=Franz, OU=IT, O=Furz, L=Rattenberg, ST=Tirol, C=AT"
+          $QT_HOST_ROOT_DIR/bin/androiddeployqt --input $DEPLOYMENT_SETTINGS --output $ANDROID_BUILD_DIR --android-platform android-35 --gradle --release --sign release.keystore alpinemaps --storepass asdfasdf
+          
+          README_PATH=$APK_DIR/read_me.txt
+          echo "The apk was signed with a generated key which changes every time the apk is generated. This means, that android might refuse to install it if another apk with the same app was installed previously. You'll have to deinstall it. Doing so will delete all settings and cache." >> $README_PATH
+          echo "" >> $README_PATH
+          echo "In order to prevent that, you have to generate your own key or use our public key:" >> $README_PATH
+          echo "" >> $README_PATH
+          echo "To generate your own key:" >> $README_PATH
+          echo "- https://stackoverflow.com/questions/3997748/how-can-i-create-a-keystore. Use 'alpinemaps' as the alias!" >> $README_PATH
+          echo "- If you have the android dev setup ready in Qt Creator, you can also create the keystore via Projects (on the left side toolboar) -> Android Qt ... -> Build -> Build Steps -> Build Android APK -> Application Signature -> Create.  Use 'alpinemaps' as the alias!" >> $README_PATH
+          echo "- Then you have to encode the keystore in base64, e.g., on linux via 'base64 keystorefile > keystorefile.base64'" >> $README_PATH
+          echo "- Finally, create the following secrets in github -> your repo -> Settings -> Secrets and variables -> Actions -> Repository secrets" >> $README_PATH
+          echo "  SIGNINGKEYBASE64 = the base64 encoded key" >> $README_PATH
+          echo "  KEYSTOREPASSWORD = the password used to create the keystore" >> $README_PATH
+          echo "" >> $README_PATH
+          echo "To use our public key, go to https://github.com/AlpineMapsOrg/renderer/blob/main/creating_apk_keys.md" >> $README_PATH
+          echo "" >> $README_PATH
+          echo "Oh, and I hope this saved your day :)" >> $README_PATH
+
+      # 查找APK文件并将路径存储于环境变量
+      - name: Find APK file and store path in environment
+        run: |
+          echo "APK_PATH=$(find ${{ env.APK_DIR }}release/ -iname '*.apk' -print -quit)" >> $GITHUB_ENV
+          echo "The APK file is located at $APK_PATH"
+
+      - name: Create artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.Repository_Name }}-${{ matrix.qt_version }}-${{ matrix.cross_qt_arch }}
+          path: ${{ env.APK_PATH }}
+          if-no-files-found: error
+
+      # tag 上传Release
+      - name: Upload Release
+        if: startsWith(github.event.ref, 'refs/tags/')
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: ${{ env.APK_PATH }}
+          asset_name: ${{ env.Repository_Name }}-${{ matrix.qt_version }}-${{ matrix.cross_qt_arch }}.apk
+          tag: ${{ github.ref }}
+          overwrite: true 
