@@ -68,6 +68,7 @@ jobs:
           install-deps: 'true'
           cache: 'true'
           aqtversion: '==3.1.*'
+          py7zrversion: '==0.20.*'
           modules: ${{ matrix.modules }}
           # tools: ${{ matrix.tools }}
 
@@ -78,6 +79,7 @@ jobs:
         uses: jurplel/install-qt-action@v4
         with:
           aqtversion: '==3.1.*'
+          py7zrversion: '==0.20.*'
           version: ${{ matrix.qt_version }}
           host: ${{ env.qt_host }}
           target: android
