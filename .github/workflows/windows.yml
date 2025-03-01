@@ -16,9 +16,9 @@ jobs:
       # 矩阵配置
       matrix:
         include:
-          # 6.6.2
-          - qt_version: 6.6.2
-            qt_arch: win64_msvc2019_64
+          # 6.8.2
+          - qt_version: 6.8.2
+            qt_arch: win64_msvc2022_64
             arch: x64
             modules: 'qthttpserver qtwebsockets qtmultimedia'
     env:
@@ -28,14 +28,14 @@ jobs:
       qt_target: 'desktop'
       qt_host: 'windows'
       # 压缩包名称
-      archiveName: 'QListenTogether-${{ matrix.qt_version }}-${{ matrix.qt_arch }}.zip'
+      archiveName: 'QListenTogether-${{ matrix.qt_version }}-${{ matrix.qt_arch }}'
     # 步骤
     steps:
       # 安装Qt
       - name: Install Qt
         if: 'true'
         # 使用外部action。这个action专门用来安装Qt
-        uses: jurplel/install-qt-action@v3
+        uses: jurplel/install-qt-action@v4
         with:
           version: ${{ matrix.qt_version }}
           host: ${{ env.qt_host }}
@@ -50,12 +50,12 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 1
-          submodules: recursive
+          submodules: 'recursive'
       - name: CMake Build
         id: build
         shell: cmd
         run: |
-          cmake -A ${{ matrix.arch }} -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }} -B ${{ env.BUILD_PATH }}
+          cmake -A ${{ matrix.arch }} -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }} -DCMAKE_INSTALL_PREFIX=${{ env.BUILD_PATH }}/${{ env.BUILD_TYPE }} -B ${{ env.BUILD_PATH }}
           ls
       # CMake Install
       - name: CMake Install
@@ -77,7 +77,7 @@ jobs:
           # tree /F
 
           # 拷贝依赖
-          windeployqt ${{ env.assume }} --qmldir ${{ github.workspace }} --no-translations --no-system-d3d-compiler ${{ env.path }}/bin/QListenTogether.exe
+          windeployqt ${{ env.assume }} --qmldir . --no-translations --compiler-runtime ${{ env.path }}/QListenTogether.exe
       # tag 查询github-Release
       # 上传artifacts          
       - uses: actions/upload-artifact@v4
@@ -102,5 +102,6 @@ jobs:
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           file: ${{ github.workspace }}/${{ env.archiveName }}
+          # asset_name: ${{ env.archiveName }}
           tag: ${{ github.ref }}
           overwrite: true 
