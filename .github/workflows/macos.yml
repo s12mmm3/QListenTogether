@@ -80,6 +80,6 @@ jobs:
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           file: ${{ github.workspace }}/${{ env.BUILD_PATH }}/${{ env.BUILD_TYPE }}/${{ env.Repository_Name }}.dmg
-          asset_name: ${{ env.archiveName }}
+          asset_name: ${{ env.archiveName }}.dmg
           tag: ${{ github.ref }}
           overwrite: true
