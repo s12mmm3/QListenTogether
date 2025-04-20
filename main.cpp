@@ -4,7 +4,7 @@
 #include <QQuickStyle>
 #include <QLoggingCategory>
 
-#include "QCloudMusicApi/QCloudMusicApi/apihelper.h"
+#include "QCloudMusicApi/apihelper.h"
 
 int main(int argc, char *argv[])
 {

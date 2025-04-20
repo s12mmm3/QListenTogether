@@ -12,11 +12,9 @@ endif()
 
 set(BUILD_SHARED_LIBS OFF)
 set(MUSICAPI_TEST OFF)
-set(MUSICAPI_CAPI OFF)
-set(MUSICAPI_SERVER OFF)
-set(MUSICAPI_SETOUTPUTPATH OFF)
 
-add_subdirectory(QCloudMusicApi)
+add_subdirectory(3rdparty/QCloudMusicApi)
+include_directories(3rdparty/QCloudMusicApi)
 
 find_package(Qt6 6.5 REQUIRED COMPONENTS Multimedia Quick QuickControls2 Network)
 

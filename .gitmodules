@@ -1,6 +1,6 @@
-[submodule "QCloudMusicApi"]
-	path = QCloudMusicApi
-	url = https://github.com/s12mmm3/QCloudMusicApi.git
 [submodule "qqr.js"]
 	path = qqr.js
 	url = https://github.com/M4rtinK/qqr.js.git
+[submodule "3rdparty/QCloudMusicApi"]
+	path = 3rdparty/QCloudMusicApi
+	url = https://github.com/s12mmm3/QCloudMusicApi
