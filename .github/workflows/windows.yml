@@ -16,8 +16,8 @@ jobs:
       # 矩阵配置
       matrix:
         include:
-          # 6.8.2
-          - qt_version: 6.8.2
+          # 6.9.1
+          - qt_version: 6.9.1
             qt_arch: win64_msvc2022_64
             arch: x64
             modules: 'qthttpserver qtwebsockets qtmultimedia'

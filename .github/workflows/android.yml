@@ -15,20 +15,20 @@ jobs:
       # 矩阵配置
       matrix:
         include:
-          # 6.8.2
-          - qt_version: 6.8.2
+          # 6.9.1
+          - qt_version: 6.9.1
             qt_arch: linux_gcc_64
             modules: 'qthttpserver qtwebsockets qtmultimedia'
             cross_qt_arch: 'android_arm64_v8a'
-          - qt_version: 6.8.2
+          - qt_version: 6.9.1
             qt_arch: linux_gcc_64
             modules: 'qthttpserver qtwebsockets qtmultimedia'
             cross_qt_arch: 'android_armv7'
-          - qt_version: 6.8.2
+          - qt_version: 6.9.1
             qt_arch: linux_gcc_64
             modules: 'qthttpserver qtwebsockets qtmultimedia'
             cross_qt_arch: 'android_x86'
-          - qt_version: 6.8.2
+          - qt_version: 6.9.1
             qt_arch: linux_gcc_64
             modules: 'qthttpserver qtwebsockets qtmultimedia'
             cross_qt_arch: 'android_x86_64'
