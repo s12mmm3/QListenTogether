@@ -25,7 +25,7 @@ int main(int argc, char *argv[])
         &app,
         []() { QCoreApplication::exit(-1); },
         Qt::QueuedConnection);
-    engine.loadFromModule("QListenTogether", "Main");
+    engine.loadFromModule("main", "Main");
 
     return app.exec();
 }

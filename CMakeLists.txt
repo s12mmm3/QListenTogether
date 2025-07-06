@@ -48,7 +48,7 @@ set_source_files_properties(qqr.js/qqr.js PROPERTIES
 )
 
 qt_add_qml_module(${PROJECT_NAME}
-    URI ${PROJECT_NAME}
+    URI main
     VERSION 1.0
     QML_FILES
         Main.qml
